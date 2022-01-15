@@ -61,16 +61,6 @@ const StatisticLine = (props) => {
     
   )
 }
-const History = (props) => {
-  if (props.allClicks.length === 0){
-    return
-  }
-  return(
-    <div>
-    
-    </div>
-  )
-}
 
 const App = () => {
   // tallenna napit omaan tilaansa
