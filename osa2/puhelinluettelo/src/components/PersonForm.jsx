@@ -4,6 +4,7 @@ const PersonForm = (props) => {
 
     const handleNameChange = (event) => {
         props.onNameChange(event.target.value)
+
     }
     const handleNumberChange = (event) => {
         props.onNumberChange(event.target.value)
@@ -16,12 +17,12 @@ const PersonForm = (props) => {
       return (
         <form onSubmit={handleAddName}>
             <div>
-            name: <input type="text" onChange={handleNameChange} />
-            <br/>
-            number: <input type="text" onChange={handleNumberChange} />
+                name: <input type="text" value={props.name} onChange={handleNameChange} />
+                <br/>
+                number: <input type="text" value={props.number} onChange={handleNumberChange} />
             </div>
             <div>
-            <button type="submit">add</button>
+                <button type="submit">add</button>
             </div>
         </form>
       )    
