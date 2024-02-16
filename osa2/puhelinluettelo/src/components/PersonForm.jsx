@@ -4,7 +4,6 @@ const PersonForm = (props) => {
 
     const handleNameChange = (event) => {
         props.onNameChange(event.target.value)
-
     }
     const handleNumberChange = (event) => {
         props.onNumberChange(event.target.value)

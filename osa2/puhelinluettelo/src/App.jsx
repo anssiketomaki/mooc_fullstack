@@ -1,18 +1,11 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import PersonService from './services/PersonService'
 import Persons from './components/Persons'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 
-//import Person from './components/Person'
-
 const App = () => {
-  // const [persons, setPersons] = useState([
-  //   { id:0, name: 'Arto Hellas', number: '040-123456' },
-  //   { id:1, name: 'Ada Lovelace', number: '39-44-5323523' },
-  //   { id:2, name: 'Dan Abramov', number: '12-43-234345' },
-  //   { id:3, name: 'Mary Poppendieck', number: '39-23-6423122' }
-  // ]) 
+
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newPnum, setNewPnum] = useState('')
@@ -20,35 +13,53 @@ const App = () => {
 
   useEffect (()=>{
     console.log('effect')
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response=>{
-        console.log('promise fulfilled')
-        setPersons(response.data)
-      })
+    getPersons()
   }, [])
-  
+
+  const getPersons = () =>{
+    PersonService
+      .getAll()
+      .then(response =>{
+        setPersons(response.data)
+    })
+  }
 
   const handleAddName = () => {
-    const ns = persons.map(p => p.name)
-    if (ns.includes(newName)) 
-    {
-      window.alert(`${newName} is already added to phonebook`)
-    } 
-    else
-    {
-      console.log('nimi lisätään', newName, newPnum)
-      const newPerson = { id: persons.length
-                        , name: newName
-                        , number: newPnum                
-                        }
-      setPersons(persons.concat(newPerson))
-      //console.log("Before: ", newName, newPnum)
+    console.log('nimi lisätään', newName, newPnum)
+    const newpers = persons.find(p => p.name === newName)
+    console.log(`result from finding from phonebook ${newpers}`)
+    if (typeof newpers !== 'undefined'){
+      if(window.confirm(`${newName} is already in the phonebook. Want to replace old number
+                        ${newpers.number} with ${newPnum}`))
+      {
+        const updatedpers = {...newpers, number: newPnum};
+        PersonService
+          .update(newpers.id, updatedpers)
+          .then(response =>{
+            setPersons(persons.map(p => p.id !== newpers.id ? p : response.data))
+          })
+          .catch(error => {
+            console.log(`could not change number for person ${newpers.name}`)
+          })
+        setNewName('')
+        setNewPnum('')
+      }
+    }else{
+      const newPerson = { name: newName
+        , number: newPnum                
+        }
+      PersonService
+      .create(newPerson)
+      .then(response =>{
+        setPersons(persons.concat(response.data))
+      })
+
       setNewName('')
       setNewPnum('')
-      //console.log("Afta: ", newName, newPnum)
-    }
+     }
+    
   }
+
   const handleNameChange = (newNa) =>{
     setNewName(newNa)
   }
@@ -57,6 +68,24 @@ const App = () => {
   }
   const handleFilterChange = (newF) =>{
     setNewFilter(newF)
+  }
+  const handleDeletePerson = (delP) => {
+    const deletable = persons.find(p => p.id === delP);
+    if(window.confirm(`Delete ${deletable.name}?`)){
+      PersonService
+        .deletePerson(delP)
+        .then(response =>{
+          //console.log(response)
+          if (response.status === 200){
+            setPersons( persons.filter(person => person.id !== delP)
+          )} else{
+            console.log('some error unknown in deletion')
+          }
+        })
+        .catch(error => {
+          console.log(`could not delete person ${delP}`)
+        })
+      }
   }
   
   return (
@@ -76,7 +105,10 @@ const App = () => {
                 />
 
       <h2>Numbers</h2>
-      <Persons persons={persons} filt={newFilter}/>
+        <Persons  persons={persons} 
+                  filt={newFilter}
+                  deletePerson = {handleDeletePerson}
+                />
         
     </div>
   )
