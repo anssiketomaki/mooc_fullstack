@@ -3,6 +3,9 @@ import PersonService from './services/PersonService'
 import Persons from './components/Persons'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
+import Notification from './components/Notification'
+import ErrorMessage from './components/ErrorMessage'
+import './index.css'
 
 const App = () => {
 
@@ -10,6 +13,8 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newPnum, setNewPnum] = useState('')
   const [newFilter, setNewFilter] = useState('')
+  const [newNotification, setNewNotification] = useState(null)
+  const [newError, setNewError] = useState(null)
 
   useEffect (()=>{
     console.log('effect')
@@ -27,7 +32,7 @@ const App = () => {
   const handleAddName = () => {
     console.log('nimi lisätään', newName, newPnum)
     const newpers = persons.find(p => p.name === newName)
-    console.log(`result from finding from phonebook ${newpers}`)
+    // console.log(`result from finding from phonebook ${newpers}`)
     if (typeof newpers !== 'undefined'){
       if(window.confirm(`${newName} is already in the phonebook. Want to replace old number
                         ${newpers.number} with ${newPnum}`))
@@ -37,9 +42,11 @@ const App = () => {
           .update(newpers.id, updatedpers)
           .then(response =>{
             setPersons(persons.map(p => p.id !== newpers.id ? p : response.data))
+            handleNotification(`Number changed for person ${newpers.name}`)
           })
           .catch(error => {
-            console.log(`could not change number for person ${newpers.name}`)
+            console.log(`Could not change number for person ${updatedpers.name}`)
+            handleErrorMessage(`Information of ${updatedpers.name} has already been removed from server`)
           })
         setNewName('')
         setNewPnum('')
@@ -53,6 +60,7 @@ const App = () => {
       .then(response =>{
         setPersons(persons.concat(response.data))
       })
+      handleNotification(`Added ${newPerson.name}`)
 
       setNewName('')
       setNewPnum('')
@@ -77,21 +85,39 @@ const App = () => {
         .then(response =>{
           //console.log(response)
           if (response.status === 200){
-            setPersons( persons.filter(person => person.id !== delP)
-          )} else{
-            console.log('some error unknown in deletion')
+            setPersons( persons.filter(person => person.id !== delP))
+            handleNotification(`Deleted ${deletable.name}`)
+          } else{
+            console.log(`Information of ${deletable.name} has already been removed from server`)
+            handleErrorMessage(`Information of ${deletable.name} has already been removed from server`)
           }
         })
         .catch(error => {
           console.log(`could not delete person ${delP}`)
+          handleErrorMessage(`Information of ${deletable.name} has already been removed from server`)
         })
       }
   }
+
+  const handleNotification = (message) =>{
+    setNewNotification(message);
+    setTimeout(() => {
+      setNewNotification(null);
+    }, 5000);
+  }
+  const handleErrorMessage = (message) =>{
+    setNewError(message);
+    setTimeout(() => {
+      setNewError(null)
+    }, 5000);
+  }
+
   
   return (
     <div>
       <h2>Phonebook</h2>
- 
+      <Notification notification={newNotification}/>
+      <ErrorMessage error= {newError}/>
       <Filter onFilterChange= {handleFilterChange}/> 
       <br />
       
