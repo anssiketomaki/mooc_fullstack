@@ -6,27 +6,27 @@ const LangRow = ({lang})=>{
     )
 }
 
-const CountryView = (props) => {
+const CountryView = ({flagAdress, countryData}) => {
     
     
-    if ((props.countryShow === true || props.countryShow.length === 1 )
-        && props.countryData !== null){
-            console.log(props.countryData)
-        //const country = props.CountryData
-        return (
-            <div>
-                <h2>{props.countryData.name.common}</h2>
-                <p>Capital: {props.countryData.capital}</p>
-                <p>Area: {props.countryData.area}km2</p>
-                <br />
-                <b>Languages:</b>
-                <ul>
-                {Object.keys(props.countryData.languages).map(key =>
-                        <LangRow lang ={props.countryData.languages[key]} key={key}/>
-                        )}
-                </ul>
-            </div>
-        )
+    //console.log(countryData)
+    if(countryData !== null){
+        const flagAdress = countryData.flags.png
+    return (
+        <div>
+            <h2>{countryData.name.common}</h2>
+            <p>Capital: {countryData.capital}</p>
+            <p>Area: {countryData.area}km2</p>
+            <br />
+            <b>Languages:</b>
+            <ul>
+            {Object.keys(countryData.languages).map(key =>
+                    <LangRow lang ={countryData.languages[key]} key={key}/>
+                    )}
+            </ul>
+            <img  src={flagAdress} alt="Flag of the country" />
+        </div>
+    )
     }
         
 }

@@ -9,13 +9,21 @@ function App() {
   const [countryData, setCountryData] = useState(null);
   const [newFilter, setNewFilter] = useState('');
   
-  const [countryShow, setCountryShow] = useState(false);
   const [countryToShow, setCountryToShow] = useState([]);
+  const [flag, setFlag] = useState(null);
+
 
   useEffect(()=>{
     console.log('effect')
     getCountries();
   },[]);
+  
+  useEffect(() => {
+    if (countryToShow.length === 1) {
+      handleGetCountryData(countryToShow[0].common.toLowerCase());
+    }
+  }, [countryToShow]);
+
 
   const getCountries = () => {
     CountryService
@@ -25,57 +33,70 @@ function App() {
         common: country.name.common, official: country.name.official
       }))
       setCountryNames(names);
-      //console.log(names)
     })
+    .catch(error => {
+      console.error("Error fetching countries:", error);
+    });
   }
 
-  const getCountryData = (name) => {
+  const handleGetCountryData = (name) => {
     CountryService
     .getCountry(name)
     .then(response=>{
       setCountryData(response.data)
       console.log(response.data)
+      if (response.data.flags.png) {
+        handleGetFlag(response.data.flags.png);
+      }
     })
    .catch(error => {
     console.error("Error fetching country data:", error);
     })
+
+  }
+  const handleGetFlag = (flagUrl) => {
+    CountryService
+    .getFlag(flagUrl)
+    .then(response=>{
+      setFlag(response.data)
+    })
+   .catch(error => {
+    console.error("Error fetching country flag:", error);
+    })
   }
   const handleFilterChange = (newF) =>{
+
     console.log(`setting new filter to be: ${newF}`)
     setNewFilter(newF.toLowerCase());
-
-    const result = countryNames.filter(c =>
-      c.common.toLowerCase().includes(newFilter.toLowerCase())
-      )
-    console.log(result)
-    if (result.length !== 1){
-      setCountryShow(false)
-      setCountryData(null)
-    }else{
-      setCountryShow(true)
-      setCountryToShow(result[0].common)
-      getCountryData(result[0].common)
-    } 
+    
+    setCountryToShow(countryNames.filter(c =>
+      c.common.toLowerCase().includes(newF.toLowerCase())
+      ))
   }
-  //boolean pois ja vaan listan pituus määrittäjäksi!
-  //show-napista vaihtaa maan nimen hakukenttään!
+  const handleShowButtonClick = (name) => {
+    console.log("filtteröidään", name)
+    setNewFilter(name.toLowerCase());
+
+    setCountryToShow(countryToShow.filter(c =>
+      c.common.toLowerCase() === name.toLowerCase()    
+    ))
+  }
 
   return (
 
       <div>
-        
         <SearchForm onFilterChange = {handleFilterChange}
                     cfilter = {newFilter} />
                     
-        <SearchResult usedFilter = {newFilter}
+        <SearchResult 
+                  cNames = {countryNames}
+                  usedFilter = {newFilter}
                   cToShow = {countryToShow}
-                  countryShow={countryShow}
                   countryData = {countryData}
-                  />
+                  flagAdress = {flag}
+                  onShowButtonClick = {handleShowButtonClick}
+                  /> 
       </div>
-
-      
-      
 
   )
 }

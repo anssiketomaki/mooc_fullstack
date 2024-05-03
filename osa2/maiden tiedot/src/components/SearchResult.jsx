@@ -2,56 +2,46 @@ import Listing from "./Listing"
 import CountryView from "./CountryView"
 
 const SearchResult = (props) => {
+     
+    const cts = props.cToShow.length
+    //console.log(`montako tulee listaan resultissa (cts): ${cts}`)
 
-    if (props.cToShow.length >10){
+    //console.log(`len näytettävät maat ${props.cToShow.length} `)
+
+    if(cts >10){
         return(
             <div>
                 <p>Too many matches, specify another filter</p>
             </div>        
         )
-    
-    }
-    else if (props.cToShow.length !== 1)
-    {   
-        const LangRow = ({lang})=>{
-            return(
-                <li>{lang}</li>
-            )
-        }
-
+    }else if (cts !== 1){
+ 
         return(
             <div>
                 <ul>
                     {props.cToShow.map(c =>
-                        <CountryRow name={c.common} key={c.official}/>
+                        <Listing    name={c.common} 
+                                    onShowButtonClick={props.onShowButtonClick}
+                                    key={c.official}/>
                     )}
                 </ul>
             </div>
         )
-        /*
-        return (
-            <div>
-                <Listing  usedFilter = {props.usedFilter}
-                        cToShow = {props.cToShow}
-                        countryShow={props.countryShow}
-                        countryData = {props.countryData}
-                        />
-            </div>
-        )*/
-    }
-    else if(props.cToShow.length === 1)
-    {
+
+    } else if(cts === 1 ){
+        //console.log(`näkyykö tää jos listassa vaan yks maa?. Näkyy! ${props.cToShow[0].common}`)
+
         return(
             <div>
-                <CountryView  countryShow={props.countryShow}
+                <CountryView  countryShow={props.cToShow[0]}
                             countryData = {props.countryData}
+                            flagAdress = {props.flagAdress}
                         />
             </div>
         )
     }
-
-   
-    
+        
 }
 
 export default SearchResult
+

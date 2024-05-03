@@ -1,25 +1,24 @@
 import App from '../App'
 
-
-const CountryRow = ({name}) =>{
-    return(
-        <li>{name}</li>
-    )
-}
-
-const Listing = (props) =>{
-    const listing = props.cToShow
-     if ( props.cToShow.length !== 1){
-            return(
-                <div>
-                    <ul>
-                        {listing.map(c =>
-                            <CountryRow name={c.common} key={c.official}/>
-                        )}
-                    </ul>
-                </div>
-            )
+const Listing = ({name, onShowButtonClick}) =>{
+    const handleShowButtonClick = () => {
+        onShowButtonClick(name);
+    };
+    
+    const buttonStyle = {
+        color: 'gray',
+        marginLeft: '10px',
+        fontSize: '14px'
     }
+    
+    return(
+        <li>
+            {name} 
+            <button type="button"
+                    style={buttonStyle} onClick={handleShowButtonClick}>Show</button>
+        </li>
+        
+    )
 }
 
 

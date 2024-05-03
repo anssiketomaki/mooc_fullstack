@@ -9,8 +9,12 @@ const getAll = () =>{
 const getCountry = (countryName) =>{
     return axios.get(`${baseUrl}/api/name/${countryName}`)
 }
+const getFlag = (flagUrl) => {
+    return axios.get(flagUrl)
+}
 
 export default{
     getAll: getAll,
+    getFlag: getFlag,
     getCountry: getCountry
 }
