@@ -1,0 +1,13 @@
+# .super-linter.yml
+# this file includes settings for super linter
+---
+
+# Turn on Python and JavaScript linting
+validate_python: true
+validate_javascript_es: true
+
+# Turn off linters for unsupported languages
+validate_yaml: false
+validate_markdown: false
+
+# # Here you can also specify paths to specific configuration files if needed
