@@ -1,4 +1,5 @@
 import App from '../App'
+import CityWeather from './CityWeather'
 
 const LangRow = ({lang})=>{
     return(
@@ -7,7 +8,6 @@ const LangRow = ({lang})=>{
 }
 
 const CountryView = ({flagAdress, countryData}) => {
-    
     
     //console.log(countryData)
     if(countryData !== null){
@@ -25,6 +25,7 @@ const CountryView = ({flagAdress, countryData}) => {
                     )}
             </ul>
             <img  src={flagAdress} alt="Flag of the country" />
+            <CityWeather cityName={countryData.capital}/>
         </div>
     )
     }
