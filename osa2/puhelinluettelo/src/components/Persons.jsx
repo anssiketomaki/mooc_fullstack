@@ -1,5 +1,6 @@
-import App from '../App'
+//import App from '../App'
 import Person from './Person'
+import PropTypes from 'prop-types';
 
 const Persons = (props) => {
 
@@ -21,4 +22,9 @@ const Persons = (props) => {
     );
 }
 
+Persons.propTypes = {
+    persons: PropTypes.array.isRequired,
+    filt: PropTypes.string.isRequired,
+    deletePerson: PropTypes.func.isRequired
+}
 export default Persons

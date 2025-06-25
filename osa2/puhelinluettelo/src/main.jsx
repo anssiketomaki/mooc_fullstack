@@ -11,8 +11,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   </React.StrictMode>,
 )
 
-const promise = axios.get('http://localhost:3001/persons')
-console.log(promise)
+// const promise = axios.get('http://localhost:3001/api/persons')
+const promise = axios.get('/api/persons')
 
-// const promise2 = axios.get('http://localhost:3001/foobar')
-// console.log(promise2)
+console.log(promise)

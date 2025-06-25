@@ -44,12 +44,14 @@ const App = () => {
             setPersons(persons.map(p => p.id !== newpers.id ? p : response.data))
             handleNotification(`Number changed for person ${newpers.name}`)
           })
-          .catch(error => {
+          .catch(() => {
             console.log(`Could not change number for person ${updatedpers.name}`)
             handleErrorMessage(`Information of ${updatedpers.name} has already been removed from server`)
           })
-        setNewName('')
-        setNewPnum('')
+          .finally(()=>{
+            setNewName('')
+            setNewPnum('')
+          })
       }
     }else{
       const newPerson = { name: newName
@@ -59,11 +61,16 @@ const App = () => {
       .create(newPerson)
       .then(response =>{
         setPersons(persons.concat(response.data))
+        handleNotification(`Added ${newPerson.name}`)
       })
-      handleNotification(`Added ${newPerson.name}`)
-
-      setNewName('')
-      setNewPnum('')
+      .catch(error =>{
+        // handleErrorMessage(`Failed to add ${newPerson.name}`);
+        handleErrorMessage(`${error.response.data.error}`)
+      })
+      .finally(()=>{
+        setNewName('')
+        setNewPnum('')
+      })
      }
     
   }
@@ -84,7 +91,7 @@ const App = () => {
         .deletePerson(delP)
         .then(response =>{
           //console.log(response)
-          if (response.status === 200){
+          if (response.status === 204){
             setPersons( persons.filter(person => person.id !== delP))
             handleNotification(`Deleted ${deletable.name}`)
           } else{
@@ -92,7 +99,7 @@ const App = () => {
             handleErrorMessage(`Information of ${deletable.name} has already been removed from server`)
           }
         })
-        .catch(error => {
+        .catch(() => {
           console.log(`could not delete person ${delP}`)
           handleErrorMessage(`Information of ${deletable.name} has already been removed from server`)
         })

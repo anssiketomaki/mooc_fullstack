@@ -1,4 +1,5 @@
 
+import PropTypes from 'prop-types';
 
 const ErrorMessage = ({error}) => {
     const messageStyle = {
@@ -18,6 +19,11 @@ const ErrorMessage = ({error}) => {
         </div>
         )
     }
+    return null;
 }
+
+ErrorMessage.propTypes = {
+    error: PropTypes.string
+};
 
 export default ErrorMessage;

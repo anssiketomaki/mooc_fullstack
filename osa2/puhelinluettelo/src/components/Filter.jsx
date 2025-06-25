@@ -1,4 +1,5 @@
-import App from '../App'
+//import App from '../App'
+import PropTypes from 'prop-types';
 
 const Filter = (props) => {
 
@@ -14,5 +15,8 @@ const Filter = (props) => {
     )
     
   }
+Filter.propTypes = {
+  onFilterChange: PropTypes.func.isRequired,
+};
 
 export default Filter

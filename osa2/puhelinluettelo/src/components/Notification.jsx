@@ -1,4 +1,5 @@
-import App from '../App'
+//import App from '../App'
+import PropTypes from 'prop-types';
 
 const Notification = ({notification}) => {
 
@@ -21,4 +22,7 @@ const Notification = ({notification}) => {
 
 }
 
+Notification.propTypes = {
+  notification: PropTypes.string,
+};
 export default Notification;

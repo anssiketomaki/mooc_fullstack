@@ -1,4 +1,5 @@
-import App from '../App'
+//import App from '../App'
+import PropTypes from 'prop-types';
 
 const Person = (props) => {
     const {id, name, number} = props.info;
@@ -14,5 +15,14 @@ const Person = (props) => {
             }</li>
     );
 }
+
+Person.propTypes = {
+    info: PropTypes.shape({
+        id: PropTypes.string.isRequired,
+        name: PropTypes.string.isRequired,
+        number: PropTypes.string.isRequired,
+    }).isRequired,
+    handleDeletePerson: PropTypes.func.isRequired,
+};
 
 export default Person

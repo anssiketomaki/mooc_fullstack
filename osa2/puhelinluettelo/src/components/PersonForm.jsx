@@ -1,4 +1,5 @@
-import App from '../App'
+//import App from '../App'
+import PropTypes from 'prop-types';
 
 const PersonForm = (props) => {
 
@@ -26,5 +27,13 @@ const PersonForm = (props) => {
         </form>
       )    
 }
+PersonForm.propTypes = {
+    onNameChange: PropTypes.func.isRequired,
+    onNumberChange: PropTypes.func.isRequired,
+    onSubmit: PropTypes.func.isRequired,
+    name: PropTypes.string.isRequired,
+    number: PropTypes.string.isRequired,
+};
+
 
 export default PersonForm
