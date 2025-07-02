@@ -2,15 +2,18 @@
 ### GET all blog posts
 GET http://localhost:3003/api/blogs
 
+### GET not existing url error
+GET http://localhost:3003/api/blo
+
 
 ### (Create) POST a new blog post
 POST http://localhost:3003/api/blogs
 Content-Type: application/json
 
 {
-  "title": "New Blog Post",
-  "author": "John Doe",
-  "url": "http://example.com/new-blog-post",
+  "title": "Second Blog Post",
+  "author": "Johnie",
+  "url": "http://example.com/Second-blog-post",
   "likes": 0
 }
 
@@ -20,6 +23,17 @@ Content-Type: application/json
 
 {
   "title": "Reposted Blog Post",
+  "author": "John Oldie",
+  "url": "http://example.com/old-blog-post",
+  "likes": 5
+}
+
+### Try to (create) POST with missing information
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+  "title": "",
   "author": "John Oldie",
   "url": "http://example.com/old-blog-post",
   "likes": 5
