@@ -1,37 +1,79 @@
+require('dotenv').config()
 const express = require('express')
-const mongoose = require('mongoose')
+const cors = require('cors')
+var morgan = require('morgan')
+const Blog = require('./models/blog')
 
 const app = express()
 
-const blogSchema = mongoose.Schema({
-  title: String,
-  author: String,
-  url: String,
-  likes: Number,
-})
+// Middleware
+app.use(express.json()) //parser for json data
+app.use(express.static('dist')) //serve static files from dist folder
+app.use(cors()) //enable CORS for all origins
+app.use(morgan('tiny')) //log HTTP requests to the console
 
-const Blog = mongoose.model('Blog', blogSchema)
-
-const mongoUrl = 'mongodb://localhost/bloglist'
-mongoose.connect(mongoUrl)
-
-app.use(express.json())
-
-app.get('/api/blogs', (request, response) => {
-  Blog.find({}).then((blogs) => {
-    response.json(blogs)
+// GET ALL
+app.get('/api/blogs', (request, response, next) => {
+  Blog.find({})
+  .then(blogs => {
+    if(blogs){
+      response.json(blogs)
+    } else {
+      response.status(404).end()
+    }
   })
+  .catch(error => next(error))
 })
 
-app.post('/api/blogs', (request, response) => {
-  const blog = new Blog(request.body)
+// ADD BLOG-POST to the DB
+app.post('/api/blogs', (request, response, next) => {
+  const body = request.body
+  console.log(body)
 
-  blog.save().then((result) => {
-    response.status(201).json(result)
+  if (!body.author || !body.title || !body.url){
+    return response.status(400).json({
+      error: 'author, title or url missing'
+    })
+  }
+  const likes = body.likes || 0
+
+  const blog = new Blog ({
+    title: body.title,
+    author: body.author,
+    url: body.url,
+    likes: likes
   })
+
+  blog.save()
+    .then((savedBlog) => {
+      response.status(201).json(savedBlog)
+    })
+    .catch(error => next(error))
 })
 
-const PORT = 3003
+// Middleware for catching unknown endpoints
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
+app.use(unknownEndpoint)
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  // these specifics not set up yet to this project
+  // if (error.name === 'CastError') {
+  //   return response.status(400).send({ error: 'malformatted id' })
+  // } else if (error.name === 'ValidationError') {
+  //   return response.status(400).json({ error: error.message })
+  // }
+
+  next(error)
+}
+
+app.use(errorHandler)
+
+
+const PORT = process.env.PORT || 3003
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })

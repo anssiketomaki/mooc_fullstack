@@ -1,0 +1,26 @@
+
+### GET all blog posts
+GET http://localhost:3003/api/blogs
+
+
+### (Create) POST a new blog post
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+  "title": "New Blog Post",
+  "author": "John Doe",
+  "url": "http://example.com/new-blog-post",
+  "likes": 0
+}
+
+### (create) POST another blog post
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+  "title": "Reposted Blog Post",
+  "author": "John Oldie",
+  "url": "http://example.com/old-blog-post",
+  "likes": 5
+}
