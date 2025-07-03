@@ -32,6 +32,26 @@ const mostBlogs = (blogs) => {
         author: mostBlogs,
         blogs: countsByName[mostBlogs],
     }
+}
+
+const mostLikes = (blogs) => {
+    // Count all likes from the blogs for each author
+    const countsByName = blogs.reduce((acc, blog) => {
+        acc[blog.author] = (acc[blog.author] || 0) + blog.likes
+        return acc
+    }, {})
+    
+    // Find (one of) the author(s) that have the most overall likes
+    const mostLiked = Object.keys(countsByName).reduce((a, b) =>{
+        return countsByName[a] > countsByName[b]
+            ? a
+            : b
+    })
+
+    return {
+        author: mostLiked,
+        likes: countsByName[mostLiked],
+    }
 
 }
 
@@ -40,4 +60,5 @@ module.exports = {
   totalLikes,
   favoriteBlog,
   mostBlogs,
+  mostLikes
 }

@@ -83,7 +83,7 @@ describe('total likes', () => {
     })
 })
 
-describe('most liked', () => {
+describe('most liked blog', () => {
     test('most liked is found from list of one', () => {
         const result = listHelper.favoriteBlog(listWithOneBlog)
         assert.strictEqual(result.likes, 5)
@@ -99,10 +99,26 @@ describe('author activity', () => {
     test('find most active author from list of one', () => {
         const result = listHelper.mostBlogs(listWithOneBlog)
         assert.strictEqual(result.author, 'Edsger W. Dijkstra')
+        assert.strictEqual(result.blogs, 1)
     })
     
     test('find most active author from list of many', () => {
         const result = listHelper.mostBlogs(listWithManyBlogs)
         assert.strictEqual(result.author, "Robert C. Martin")
+        assert.strictEqual(result.blogs, 3)
+    })
+})
+
+describe('author likes', () => {
+    test('find most liked author from list of one', () => {
+        const result = listHelper.mostLikes(listWithOneBlog)
+        assert.strictEqual(result.author, 'Edsger W. Dijkstra')
+        assert.strictEqual(result.likes, 5)
+    })
+    
+    test('find most active author from list of many', () => {
+        const result = listHelper.mostLikes(listWithManyBlogs)
+        assert.strictEqual(result.author, "Edsger W. Dijkstra")
+        assert.strictEqual(result.likes, 17)
     })
 })
