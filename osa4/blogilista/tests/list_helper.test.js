@@ -94,3 +94,15 @@ describe('most liked', () => {
         assert.strictEqual(result.likes, 12)
     })
 })
+
+describe('author activity', () => {
+    test('find most active author from list of one', () => {
+        const result = listHelper.mostBlogs(listWithOneBlog)
+        assert.strictEqual(result.author, 'Edsger W. Dijkstra')
+    })
+    
+    test('find most active author from list of many', () => {
+        const result = listHelper.mostBlogs(listWithManyBlogs)
+        assert.strictEqual(result.author, "Robert C. Martin")
+    })
+})
