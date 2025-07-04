@@ -1,4 +1,4 @@
-const { test, after, beforeEach } = require('node:test')
+const { test, describe, after, beforeEach } = require('node:test')
 const assert = require('node:assert')
 
 const mongoose = require('mongoose')
@@ -58,43 +58,67 @@ const initialBlogs = [
         __v: 0
     }  
 ]
-
 beforeEach(async () => {
-    await Blog.deleteMany({})
-    await Blog.insertMany(initialBlogs)
-})
+        await Blog.deleteMany({})
+        await Blog.insertMany(initialBlogs)
+    })
 
-test('blogs are returned from db as json', async () => {
-  await api
-    .get('/api/blogs')
-    .expect(200)
-    .expect('Content-Type', /application\/json/)
-})
+describe('API GET - returning blogs', () => {
+    test('blogs are returned from db as json', async () => {
+    await api
+        .get('/api/blogs')
+        .expect(200)
+        .expect('Content-Type', /application\/json/)
+    })
 
-test('all blogs get returned', async () => {
-  const response = await api.get('/api/blogs')
-
-  assert.strictEqual(response.body.length, initialBlogs.length)
-})
-
-test('returning blogs contain identifier as id', async () => {
+    test('all blogs get returned from api', async () => {
     const response = await api.get('/api/blogs')
-    
-    assert(response.body.length > 0, 'Response contained NO blogs to test')
 
-    const first = response.body[0]
-    assert.strictEqual(
-        Object.hasOwn(first, '_id'),
-        false,
-        'Mongodb default property "_id" should be changed to "id"'
-    )
-    assert.strictEqual(
-        Object.hasOwn(first, 'id'),
-        true,
-        'Blog object should have property "id" precisely'
-    )
-    
+    assert.strictEqual(response.body.length, initialBlogs.length)
+    })
 
+    test('returning blogs contain identifier as "id"', async () => {
+        const response = await api.get('/api/blogs')
+        
+        assert(response.body.length > 0, 'Response contained NO blogs to test')
+
+        const first = response.body[0]
+        assert.strictEqual(
+            Object.hasOwn(first, '_id'),
+            false,
+            'Mongodb default property "_id" should be changed to "id"'
+        )
+        assert.strictEqual(
+            Object.hasOwn(first, 'id'),
+            true,
+            'Blog object should have property "id" precisely'
+        )
+    })
+})
+describe('API POST - adding blogs', () => {
+    test('you can add blog posts via POST request to api', async ()=>{
+        const newPost = {
+            title: "A blog post to blog them all",
+            author: "Blog McBlogpants",
+            url: "https://www.helsinki.fi/",
+            likes: 0
+        }
+        await api
+            .post('/api/blogs')
+            .send(newPost)
+            .expect(201)
+            .expect('Content-Type', /application\/json/)
+        
+        const response = await api.get('/api/blogs')
+        // blogs count was increased by one on the database
+        assert.strictEqual(response.body.length, initialBlogs.length+1)
+
+        // newPost is found with its title from the response and content matches
+        const found = response.body.find( blog => blog.title === newPost.title)
+        assert.strictEqual(found.url, newPost.url)
+        assert.strictEqual(found.author, newPost.author)
+        assert.strictEqual(found.likes, 0)
+    })
 })
 // test('a specific note is within the returned notes', async () => {
 //   const response = await api.get('/api/notes')
