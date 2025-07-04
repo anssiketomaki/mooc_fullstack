@@ -77,6 +77,25 @@ test('all blogs get returned', async () => {
   assert.strictEqual(response.body.length, initialBlogs.length)
 })
 
+test('returning blogs contain identifier as id', async () => {
+    const response = await api.get('/api/blogs')
+    
+    assert(response.body.length > 0, 'Response contained NO blogs to test')
+
+    const first = response.body[0]
+    assert.strictEqual(
+        Object.hasOwn(first, '_id'),
+        false,
+        'Mongodb default property "_id" should be changed to "id"'
+    )
+    assert.strictEqual(
+        Object.hasOwn(first, 'id'),
+        true,
+        'Blog object should have property "id" precisely'
+    )
+    
+
+})
 // test('a specific note is within the returned notes', async () => {
 //   const response = await api.get('/api/notes')
 
