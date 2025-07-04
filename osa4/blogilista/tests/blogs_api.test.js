@@ -14,7 +14,7 @@ const initialBlogs = [
         title: "React patterns",
         author: "Michael Chan",
         url: "https://reactpatterns.com/",
-        likes: 0,
+        likes: 7,
         __v: 0
     },
     {
@@ -22,7 +22,7 @@ const initialBlogs = [
         title: "Go To Statement Considered Harmful",
         author: "Edsger W. Dijkstra",
         url: "http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html",
-        likes: 0,
+        likes: 5,
         __v: 0
     },
     {
@@ -30,7 +30,7 @@ const initialBlogs = [
         title: "Canonical string reduction",
         author: "Edsger W. Dijkstra",
         url: "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
-        likes: 0,
+        likes: 12,
         __v: 0
     },
     {
@@ -38,7 +38,7 @@ const initialBlogs = [
         title: "First class tests",
         author: "Robert C. Martin",
         url: "http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll",
-        likes: 0,
+        likes: 10,
         __v: 0
     },
     {
@@ -54,9 +54,9 @@ const initialBlogs = [
         title: "Type wars",
         author: "Robert C. Martin",
         url: "http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html",
-        likes: 0,
+        likes: 2,
         __v: 0
-    }  
+    }   
 ]
 beforeEach(async () => {
         await Blog.deleteMany({})
@@ -118,6 +118,40 @@ describe('API POST - adding blogs', () => {
         assert.strictEqual(found.url, newPost.url)
         assert.strictEqual(found.author, newPost.author)
         assert.strictEqual(found.likes, 0)
+    })
+    test('Likes default to zero when absent', async () => {
+        const absentLikes = {
+            title: "Absent likes",
+            author: "Blog McBlogpants",
+            url: "https://www.helsinki.fi/",
+        }
+        const saved = await api
+            .post('/api/blogs')
+            .send(absentLikes)
+            .expect(201)
+            .expect('Content-Type', /application\/json/)
+
+        assert.strictEqual(saved.body.title, "Absent likes")
+        assert.strictEqual(saved.body.likes, 0)
+    })
+
+    
+    test('Likes default to zero when null', async () => {
+        const nullLikes = {
+            title: "Null likes",
+            author: "Blog McBlogpants",
+            url: "https://www.helsinki.fi/",
+            likes: null
+        }
+        const saved = await api
+            .post('/api/blogs')
+            .send(nullLikes)
+            .expect(201)
+            .expect('Content-Type', /application\/json/)
+        
+        assert.strictEqual(saved.body.title, "Null likes")
+        assert.strictEqual(saved.body.likes, 0)
+
     })
 })
 // test('a specific note is within the returned notes', async () => {

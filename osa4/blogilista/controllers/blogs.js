@@ -24,13 +24,12 @@ blogsRouter.post('/', async (request, response, next) => {
       error: 'author, title or url missing'
     })
   }
-  const likes = body.likes || 0
 
   const blog = new Blog ({
     title: body.title,
     author: body.author,
     url: body.url,
-    likes: likes
+    likes: body.likes
   })
   try{
     const savedBlog = await blog.save()
