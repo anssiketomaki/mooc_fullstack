@@ -34,9 +34,53 @@ blogsRouter.post('/', async (request, response, next) => {
   try{
     const savedBlog = await blog.save()
     response.status(201).json(savedBlog)
-  } catch (error){
+  } catch (error) {
     next(error)
   }
 })
 
+// DELETE a blog from db by id
+blogsRouter.delete('/', async (request, response, next) => {
+  try{
+    const response = await Blog.findByIdAndDelete(request.params.id)
+    response.status(204).end()
+  } catch (error) {
+    next(error)
+  }
+})
+
+// UPDATE a blog's fields in db by id
+app.put('/:id', async (request, response, next) => {
+  const { title, author, url, likes } = request.body
+
+  if (!title || !author || !url){
+    return response.status(400).json({
+      error: 'author, title or url missing'
+    })
+  }
+
+  const blog = {
+    title: title,
+    author: author,
+    url: url,
+    likes: likes
+  }
+  
+  try{
+    const updatedBlog = await Blog.findByIdAndUpdate(
+      request.params.id,
+      blog,
+      { new: true, runValidators: true, context: 'query' }
+    )
+
+    if (updatedBlog) {
+        response.json(updatedBlog)
+      } else {
+        response.status(404).end()
+      }
+  } catch (error) {
+    next(error)
+  }
+    
+})
 module.exports = blogsRouter

@@ -170,6 +170,7 @@ describe('API POST input parameters', () =>{
             .expect('Content-Type', /application\/json/)
         assert(response.body.error, 'Response body should have error field')
     })
+
     test('author is required on POST', async () => {
         const noAuthor = {
             title: "Blog McBlogpants gone missing - last seen by the keyboard",
@@ -184,6 +185,7 @@ describe('API POST input parameters', () =>{
             .expect('Content-Type', /application\/json/)
         assert(response.body.error, 'Response body should have error field')
     })
+
     test('Url is required on POST', async () => {
         const noUrl = {
             title: "the beauty of the absent audience",
@@ -198,9 +200,32 @@ describe('API POST input parameters', () =>{
             .expect('Content-Type', /application\/json/)
         assert(response.body.error, 'Response body should have error field')
     })
-
 })
 
+describe('API DELETE and UPDATE', () =>{
+    test('Blog can be deleted with its "id"', async () => {
+        const addToDelete = {
+            title: "to the present and back to oblivion",
+            author: "Blog McBlogpants",
+            url: "https://www.helsinki.fi/",
+            likes: 7
+        }
+        const firstDBState = await api.get('/api/blogs')
+
+        const added = await api
+            .post('/api/blogs')
+            .send(addToDelete)
+            .expect(201)
+            .expect('Content-Type', /application\/json/)
+        
+        const SndDBState = await api.get('/api/blogs')
+
+        const toDelete = SndDBState.body.find(post =>{
+            post.title === addToDelete.title
+        })
+
+    })
+})
 after(async () => {
   await mongoose.connection.close()
 })
