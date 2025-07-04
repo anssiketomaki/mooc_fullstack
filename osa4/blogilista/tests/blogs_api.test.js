@@ -119,6 +119,9 @@ describe('API POST - adding blogs', () => {
         assert.strictEqual(found.author, newPost.author)
         assert.strictEqual(found.likes, 0)
     })
+})
+
+describe('API POST input parameters', () =>{
     test('Likes default to zero when absent', async () => {
         const absentLikes = {
             title: "Absent likes",
@@ -135,7 +138,6 @@ describe('API POST - adding blogs', () => {
         assert.strictEqual(saved.body.likes, 0)
     })
 
-    
     test('Likes default to zero when null', async () => {
         const nullLikes = {
             title: "Null likes",
@@ -153,13 +155,51 @@ describe('API POST - adding blogs', () => {
         assert.strictEqual(saved.body.likes, 0)
 
     })
-})
-// test('a specific note is within the returned notes', async () => {
-//   const response = await api.get('/api/notes')
 
-//   const contents = response.body.map(e => e.content)
-//   assert(contents.includes('HTML is easy'))
-// })
+    test('Title is required on POST', async () => {
+        const noTitle = {
+            title: "",
+            author: "Blog McBlogpants",
+            url: "https://www.helsinki.fi/",
+            likes: 0
+        }
+        const response = await api
+            .post('/api/blogs')
+            .send(noTitle)
+            .expect(400)
+            .expect('Content-Type', /application\/json/)
+        assert(response.body.error, 'Response body should have error field')
+    })
+    test('author is required on POST', async () => {
+        const noAuthor = {
+            title: "Blog McBlogpants gone missing - last seen by the keyboard",
+            author: "",
+            url: "https://www.helsinki.fi/",
+            likes: 0
+        }
+        const response = await api
+            .post('/api/blogs')
+            .send(noAuthor)
+            .expect(400)
+            .expect('Content-Type', /application\/json/)
+        assert(response.body.error, 'Response body should have error field')
+    })
+    test('Url is required on POST', async () => {
+        const noUrl = {
+            title: "the beauty of the absent audience",
+            author: "Blog McBlogpants",
+            url: "",
+            likes: 0
+        }
+        const response = await api
+            .post('/api/blogs')
+            .send(noUrl)
+            .expect(400)
+            .expect('Content-Type', /application\/json/)
+        assert(response.body.error, 'Response body should have error field')
+    })
+
+})
 
 after(async () => {
   await mongoose.connection.close()
