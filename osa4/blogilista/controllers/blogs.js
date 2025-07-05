@@ -15,6 +15,20 @@ blogsRouter.get('/', async (request, response, next) => {
   }
 })
 
+// GET blog by id
+blogsRouter.get('/:id', async (request, response, next) => {
+  try {
+    const blogs = await Blog.findById(request.params.id)
+    if(blogs){
+      response.json(blogs)
+    } else {
+      response.status(404).end()
+    }
+  } catch (error) {
+      next(error)
+  }
+})
+
 // ADD BLOG-POST to the DB
 blogsRouter.post('/', async (request, response, next) => {
   const body = request.body
@@ -40,9 +54,9 @@ blogsRouter.post('/', async (request, response, next) => {
 })
 
 // DELETE a blog from db by id
-blogsRouter.delete('/', async (request, response, next) => {
+blogsRouter.delete('/:id', async (request, response, next) => {
   try{
-    const response = await Blog.findByIdAndDelete(request.params.id)
+    await Blog.findByIdAndDelete(request.params.id)
     response.status(204).end()
   } catch (error) {
     next(error)
@@ -50,7 +64,7 @@ blogsRouter.delete('/', async (request, response, next) => {
 })
 
 // UPDATE a blog's fields in db by id
-app.put('/:id', async (request, response, next) => {
+blogsRouter.put('/:id', async (request, response, next) => {
   const { title, author, url, likes } = request.body
 
   if (!title || !author || !url){
@@ -65,7 +79,7 @@ app.put('/:id', async (request, response, next) => {
     url: url,
     likes: likes
   }
-  
+
   try{
     const updatedBlog = await Blog.findByIdAndUpdate(
       request.params.id,
@@ -83,4 +97,5 @@ app.put('/:id', async (request, response, next) => {
   }
     
 })
+
 module.exports = blogsRouter

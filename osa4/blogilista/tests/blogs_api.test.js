@@ -210,20 +210,61 @@ describe('API DELETE and UPDATE', () =>{
             url: "https://www.helsinki.fi/",
             likes: 7
         }
-        const firstDBState = await api.get('/api/blogs')
 
-        const added = await api
+        const responseFromPost = await api
             .post('/api/blogs')
             .send(addToDelete)
             .expect(201)
-            .expect('Content-Type', /application\/json/)
         
-        const SndDBState = await api.get('/api/blogs')
+        const idToDelete = responseFromPost.body.id
 
-        const toDelete = SndDBState.body.find(post =>{
-            post.title === addToDelete.title
-        })
+        const BlogsAfterAdd = await api.get('/api/blogs')
+        // verify db size change
+        assert.strictEqual(BlogsAfterAdd.body.length, initialBlogs.length+1)
 
+        await api
+            .delete(`/api/blogs/${idToDelete}`)
+            .expect(204)
+        
+        const blogsAfterDelete = await api.get('/api/blogs');
+        assert.strictEqual(blogsAfterDelete.body.length, initialBlogs.length);
+    })
+
+    test('Blog info can be updated with its "id"', async () => {
+        const toUpdate = {
+            title: "TBA - update real title",
+            author: "Secret writer",
+            url: "https://www.tuni.fi",
+            likes: 0
+        }
+
+        const responseFromPost = await api
+            .post('/api/blogs')
+            .send(toUpdate)
+            .expect(201)
+        
+        const idToUpdate = responseFromPost.body.id
+        assert.strictEqual(responseFromPost.body.author, toUpdate.author)
+        assert.strictEqual(responseFromPost.body.likes, toUpdate.likes)
+        
+        const updates = {
+            title: "Art of using second chances",
+            author: "Blog McBlogpants",
+            url: "https://www.helsinki.fi",
+            likes: 1001
+        }
+        
+        await api
+            .put(`/api/blogs/${idToUpdate}`)
+            .send(updates)
+            .expect(200)
+            .expect('Content-Type', /application\/json/)
+
+        const responseFromUpdate = await api.get(`/api/blogs/${idToUpdate}`)
+
+        assert.strictEqual(responseFromUpdate.body.author, updates.author)
+        assert.strictEqual(responseFromUpdate.body.likes, updates.likes)
+        assert.strictEqual(responseFromUpdate.body.id, idToUpdate)
     })
 })
 after(async () => {

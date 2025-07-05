@@ -38,3 +38,12 @@ Content-Type: application/json
   "url": "http://example.com/old-blog-post",
   "likes": 5
 }
+
+### GET all blog posts after creating new ones
+GET http://localhost:3003/api/blogs
+
+### GET a specific blog post by ID
+GET http://localhost:3003/api/blogs/686872a6afa837e8fbc8080f
+
+### delete a blog post by ID
+DELETE http://localhost:3003/api/blogs/686872a6afa837e8fbc8080f
