@@ -47,3 +47,30 @@ GET http://localhost:3003/api/blogs/686872a6afa837e8fbc8080f
 
 ### delete a blog post by ID
 DELETE http://localhost:3003/api/blogs/686872a6afa837e8fbc8080f
+
+
+### update a blog post by ID
+PUT http://localhost:3003/api/blogs/6868776f0e037cddcfc3c737
+Content-Type: application/json
+
+{
+  "title": "Reposted BlogGGG Post",
+  "author": "John OldieEEEEE",
+  "url": "http://example.com/old-blog-postTT",
+  "likes": 500
+}
+
+###################################################################
+### (Create) POST a new user
+POST http://localhost:3003/api/users
+Content-Type: application/json
+
+{
+  "name": "Second User",
+  "username": "johnie",
+  "password": "password123"
+}
+
+### GET all blog users
+GET http://localhost:3003/api/users
+
