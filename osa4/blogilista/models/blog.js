@@ -22,6 +22,10 @@ const blogSchema = new mongoose.Schema({
     default: 0,
     set: v => v === null ? 0 : v 
   },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User"
+  }
 })
 
 blogSchema.set('toJSON',{
