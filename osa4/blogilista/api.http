@@ -70,6 +70,15 @@ Content-Type: application/json
   "username": "johnie",
   "password": "password123"
 }
+### (Create) POST a nother user
+POST http://localhost:3003/api/users
+Content-Type: application/json
+
+{
+  "name": "thrdduplicate User",
+  "username": "Kads",
+  "password": "1112221"
+}
 
 ### GET all blog users
 GET http://localhost:3003/api/users

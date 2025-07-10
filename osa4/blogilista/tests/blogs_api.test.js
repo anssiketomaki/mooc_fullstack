@@ -169,6 +169,10 @@ describe('API POST input parameters', () =>{
             .expect(400)
             .expect('Content-Type', /application\/json/)
         assert(response.body.error, 'Response body should have error field')
+        assert(
+            response.body.error.includes('title'),
+            'The error message should mention the title field'
+        );
     })
 
     test('author is required on POST', async () => {
@@ -184,6 +188,10 @@ describe('API POST input parameters', () =>{
             .expect(400)
             .expect('Content-Type', /application\/json/)
         assert(response.body.error, 'Response body should have error field')
+        assert(
+            response.body.error.includes('author'),
+            'The error message should mention the author field'
+        );
     })
 
     test('Url is required on POST', async () => {
@@ -199,6 +207,10 @@ describe('API POST input parameters', () =>{
             .expect(400)
             .expect('Content-Type', /application\/json/)
         assert(response.body.error, 'Response body should have error field')
+        assert(
+            response.body.error.includes('url'),
+            'The error message should mention the url field'
+        );
     })
 })
 
