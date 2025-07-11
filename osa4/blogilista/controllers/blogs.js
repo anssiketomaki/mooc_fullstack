@@ -2,6 +2,16 @@ const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
 const User = require('../models/user')
 
+const jwt = require('jsonwebtoken')
+
+const getTokenFrom = request => {
+  const authorization = request.get('authorization')
+  if (authorization && authorization.startsWith('Bearer ')){
+    return authorization.replace('Bearer ', '')
+  }
+  return null
+}
+
 // GET ALL
 blogsRouter.get('/', async (request, response, next) => {
   try {
@@ -34,16 +44,20 @@ blogsRouter.get('/:id', async (request, response, next) => {
 
 // ADD BLOG-POST to the DB
 blogsRouter.post('/', async (request, response, next) => {
+  
+  const decodedToken = jwt.verify(getTokenFrom(request), process.env.SECRET)
+  if (!decodedToken.id){
+    return response.status(401).json({ error: 'token invalid' })
+  }
+  
   const body = request.body
-
   if (!body.author || !body.title || !body.url){
     return response.status(400).json({
       error: 'author, title or url missing'
     })
   }
 
-  const user = await User.findOne()
-
+  const user = await User.findById(decodedToken.id)
   const blog = new Blog ({
     title: body.title,
     author: body.author,
@@ -51,6 +65,7 @@ blogsRouter.post('/', async (request, response, next) => {
     likes: body.likes,
     user: user._id
   })
+
   try{
     const savedBlog = await blog.save()
     user.blogs = user.blogs.concat(savedBlog._id)

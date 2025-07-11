@@ -3,8 +3,6 @@ const bcrypt = require('bcryptjs')
 const loginRouter = require('express').Router()
 const User = require('../models/user')
 
-//KATO MITEN BCRYPT vs BCRYPTJS toimii tokenien vaatimissa operaatioissa
-
 loginRouter.post('/', async (request, response) => {
   const { username, password } = request.body
 
