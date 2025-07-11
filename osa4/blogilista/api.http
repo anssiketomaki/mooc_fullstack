@@ -109,9 +109,21 @@ Content-Type: application/json
 }
 
 ### (Create) POST a new blog post
-POST http://localhost:3003/api/blogs
+POST http://localhost:3003/api/blogs/
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ik1hZHMiLCJpZCI6IjY4NzEyYTE3NGRjZmY4OTVjOTRjMzM2OSIsImlhdCI6MTc1MjI0ODUyOH0.-T1Dikmoky7zxG_cUxv6xuOhWfU9grcIk0S-7ugX8ow
+
+{
+  "title": "Mad wo ss Blog Post",
+  "author": "Madsss",
+  "url": "http://example.com/Mad wo ss-blog-post",
+  "likes": 71
+}
+
+### (Create) POST a new blog post
+DELETE http://localhost:3003/api/blogs/68715187b919fb88dcdb3ab5
+Content-Type: application/json
+//Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ik1hZHMiLCJpZCI6IjY4NzEyYTE3NGRjZmY4OTVjOTRjMzM2OSIsImlhdCI6MTc1MjI0ODUyOH0.-T1Dikmoky7zxG_cUxv6xuOhWfU9grcIk0S-7ugX8ow
 
 {
   "title": "Mad wo ss Blog Post",

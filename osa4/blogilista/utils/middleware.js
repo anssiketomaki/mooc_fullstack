@@ -37,11 +37,6 @@ const tokenExtractor = (request, response, next) => {
   }
   next()
 }
-  // const token = getTokenFrom(request, process.env.SECRET)
-  // if (!token.id) {
-  //   return response.status(401).json({ error: 'token invalid'})
-  // }
-
 
 module.exports = {
     requestLogger,

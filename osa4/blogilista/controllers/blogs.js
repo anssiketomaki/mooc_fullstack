@@ -1,5 +1,6 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
+const user = require('../models/user')
 const User = require('../models/user')
 
 const jwt = require('jsonwebtoken')
@@ -71,9 +72,28 @@ blogsRouter.post('/', async (request, response, next) => {
 
 // DELETE a blog from db by id
 blogsRouter.delete('/:id', async (request, response, next) => {
+  const decodedToken = jwt.verify(request.token, process.env.SECRET)
+  if (!decodedToken.id){
+    return response.status(401).json({ error: 'token invalid' })
+  }
+
   try{
-    await Blog.findByIdAndDelete(request.params.id)
-    response.status(204).end()
+    const blogToRemove = await Blog
+    .findById(request.params.id)
+
+    if (!blogToRemove) {
+      return response.status(404).json({ error: 'blog not found' });
+    }
+
+    const userid = blogToRemove.user.toString()
+    const tokenUserid = decodedToken.id.toString()
+
+    if (userid === tokenUserid){
+      await Blog.findByIdAndDelete(request.params.id)
+      response.status(204).end()
+    } else{
+    return response.status(401).json({ error: 'unauthrorized to delete this blog' })
+    }
   } catch (error) {
     next(error)
   }
@@ -81,22 +101,41 @@ blogsRouter.delete('/:id', async (request, response, next) => {
 
 // UPDATE a blog's fields in db by id
 blogsRouter.put('/:id', async (request, response, next) => {
-  const { title, author, url, likes } = request.body
-
-  if (!title || !author || !url){
-    return response.status(400).json({
-      error: 'author, title or url missing'
-    })
-  }
-
-  const blog = {
-    title: title,
-    author: author,
-    url: url,
-    likes: likes
+  const decodedToken = jwt.verify(request.token, process.env.SECRET)
+  if (!decodedToken.id){
+    return response.status(401).json({ error: 'token invalid' })
   }
 
   try{
+    const blogToUpdate = await Blog
+    .findById(request.params.id)
+
+    if (!blogToUpdate) {
+      return response.status(404).json({ error: 'blog not found' });
+    }
+
+    const userid = blogToUpdate.user.toString()
+    const tokenUserid = decodedToken.id.toString()
+
+    if (userid !== tokenUserid){
+      return response.status(401).json({ error: 'unauthrorized to update this blog' })
+    }
+
+    const { title, author, url, likes } = request.body
+
+    if (!title || !author || !url){
+      return response.status(400).json({
+        error: 'author, title or url missing'
+      })
+    }
+
+    const blog = {
+      title: title,
+      author: author,
+      url: url,
+      likes: likes
+    }
+
     const updatedBlog = await Blog.findByIdAndUpdate(
       request.params.id,
       blog,
