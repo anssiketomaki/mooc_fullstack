@@ -25,6 +25,7 @@ app.use(express.static('dist')) //serve static files from dist folder
 app.use(express.json()) //parser for json data
 app.use(cors()) //enable CORS for all origins
 app.use(morgan('tiny')) //log HTTP requests to the console
+app.use(middleware.tokenExtractor)
 app.use(middleware.requestLogger)
 
 app.use('/api/blogs', blogsRouter)
@@ -33,5 +34,7 @@ app.use('/api/login', loginRouter)
 
 app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)
+
+
 
 module.exports = app

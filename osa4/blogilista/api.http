@@ -114,8 +114,8 @@ Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ik1hZHMiLCJpZCI6IjY4NzEyYTE3NGRjZmY4OTVjOTRjMzM2OSIsImlhdCI6MTc1MjI0ODUyOH0.-T1Dikmoky7zxG_cUxv6xuOhWfU9grcIk0S-7ugX8ow
 
 {
-  "title": "Mads Blog Post",
-  "author": "Madss",
-  "url": "http://example.com/Mads-blog-post",
-  "likes": 69
+  "title": "Mad wo ss Blog Post",
+  "author": "Madsss",
+  "url": "http://example.com/Mad wo ss-blog-post",
+  "likes": 71
 }
