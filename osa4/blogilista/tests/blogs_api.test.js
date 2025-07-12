@@ -5,9 +5,29 @@ const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
 const Blog = require('../models/blog')
+const User = require('../models/user')
 
 const api = supertest(app)
 
+const testUsers = [
+    {
+        username: "koekaniini",
+        name: "Niini Koeka",
+        passwordHash: "$2b$10$PW6ZuFKJMuVN.bfkimZ1Pu7gwDvaGvv0nxIjvAYK8uHwrYOge4WzO",
+    },
+    {
+        username: "pretester",
+        name: "tester pre",
+        passwordHash: "$2b$10$PW6ZuFKJMuVN.bfkimZ1Pu7gwDvaGvv0nxIjvAYK8uHwrYOge4WzO",
+    },
+]
+
+const testUserLoginInfo = {
+            username: "koekaniini",
+            password: "salainensana",
+        }
+
+// NO USER OBJECT
 const initialBlogs = [
     {
         _id: "5a422a851b54a676234d17f7",
@@ -58,10 +78,115 @@ const initialBlogs = [
         __v: 0
     }   
 ]
+
 beforeEach(async () => {
         await Blog.deleteMany({})
-        await Blog.insertMany(initialBlogs)
+        await User.deleteMany({})
+        await Blog.insertMany(initialBlogs) // note: no user object
+        await User.insertMany(testUsers)
+
+        // HELPER TO CREATE passwordHash to mongo
+        // await api
+        //     .post('/api/users')
+        //     .send({
+        //         username: "koekaniini2",
+        //         name: "Niini Koeka2",
+        //         password: "salainensana",
+        //     })
+        //     .expect(201)
+})
+
+describe('token receiving and necessity of use', () => {
+    test('user gets a token at login', async () => {
+        
+        const loggedIn = await api
+            .post('/api/login')
+            .send(testUserLoginInfo)
+            .expect(200)
+            .expect('Content-Type', /application\/json/)
+        
+        assert(loggedIn.body.token, 'A token should be returned upon successful login')
+        assert.strictEqual(typeof loggedIn.body.token, 'string')
     })
+    test('user cannot add blog no token', async () => {
+        const newblog = {
+            title: "no token - no blog",
+            author: "Blog McBlogpants",
+            url: "https://www.helsinki.fi/",
+        }
+        const saved = await api
+            .post('/api/blogs')
+            .send(newblog)
+            .expect(401)
+            .expect('Content-Type', /application\/json/)
+
+        assert(saved.body.error, 'Response body should have error field')
+        assert(
+            saved.body.error.includes('token'),
+            'The error message should mention the token'
+        )
+    })
+    test('user cannot add blog without token', async () => {
+        const absentToken = {
+                Accept: 'application/json',
+            }
+        
+        const newblog = {
+            title: "no token - no blog",
+            author: "Blog McBlogpants",
+            url: "https://www.helsinki.fi/",
+        }
+        const saved = await api
+            .post('/api/blogs')
+            .send(newblog)
+            .set(absentToken)
+            .expect(401)
+            .expect('Content-Type', /application\/json/)
+
+        assert(saved.body.error, 'Response body should have error field')
+        assert(
+            saved.body.error.includes('token'),
+            'The error message should mention the token'
+        )
+    })
+    test('user cannot add blog with malformed token', async () => {
+        const loginInfo = await api
+            .post('/api/login')
+            .send(testUserLoginInfo)
+            .expect(200)
+            .expect('Content-Type', /application\/json/)
+        const userToken = 'Bearer '+loginInfo.body.token
+
+        const malformed = userToken.slice(0, -2)
+        const invalidToken = {
+                Accept: 'application/json',
+                authorization: malformed
+            }
+        
+        const newblog = {
+            title: "no token - no blog",
+            author: "Blog McBlogpants",
+            url: "https://www.helsinki.fi/",
+        }
+        const saved = await api
+            .post('/api/blogs')
+            .send(newblog)
+            .set(invalidToken)
+            .expect(401)
+            .expect('Content-Type', /application\/json/)
+
+        assert(saved.body.error, 'Response body should have error field')
+        assert(
+            saved.body.error.includes('token'),
+            'The error message should mention the token'
+        );
+        assert(
+            saved.body.error.includes('invalid'),
+            'The error message should mention "invalid"'
+        );
+    })
+
+})
 
 describe('API GET - returning blogs', () => {
     test('blogs are returned from db as json', async () => {
@@ -97,6 +222,17 @@ describe('API GET - returning blogs', () => {
 })
 describe('API POST - adding blogs', () => {
     test('you can add blog posts via POST request to api', async ()=>{
+        const loginInfo = await api
+            .post('/api/login')
+            .send(testUserLoginInfo)
+            .expect(200)
+            .expect('Content-Type', /application\/json/)
+        const userToken = 'Bearer '+loginInfo.body.token
+        const authHeaders = {
+                Accept: 'application/json',
+                authorization: userToken
+            }
+
         const newPost = {
             title: "A blog post to blog them all",
             author: "Blog McBlogpants",
@@ -106,6 +242,7 @@ describe('API POST - adding blogs', () => {
         await api
             .post('/api/blogs')
             .send(newPost)
+            .set(authHeaders)
             .expect(201)
             .expect('Content-Type', /application\/json/)
         
@@ -123,6 +260,17 @@ describe('API POST - adding blogs', () => {
 
 describe('API POST input parameters', () =>{
     test('Likes default to zero when absent', async () => {
+        const loginInfo = await api
+            .post('/api/login')
+            .send(testUserLoginInfo)
+            .expect(200)
+            .expect('Content-Type', /application\/json/)
+        const userToken = 'Bearer '+loginInfo.body.token
+        const authHeaders = {
+                Accept: 'application/json',
+                authorization: userToken
+            }
+
         const absentLikes = {
             title: "Absent likes",
             author: "Blog McBlogpants",
@@ -131,6 +279,7 @@ describe('API POST input parameters', () =>{
         const saved = await api
             .post('/api/blogs')
             .send(absentLikes)
+            .set(authHeaders)
             .expect(201)
             .expect('Content-Type', /application\/json/)
 
@@ -139,6 +288,17 @@ describe('API POST input parameters', () =>{
     })
 
     test('Likes default to zero when null', async () => {
+        const loginInfo = await api
+            .post('/api/login')
+            .send(testUserLoginInfo)
+            .expect(200)
+            .expect('Content-Type', /application\/json/)
+        const userToken = 'Bearer '+loginInfo.body.token
+        const authHeaders = {
+                Accept: 'application/json',
+                authorization: userToken
+            }
+
         const nullLikes = {
             title: "Null likes",
             author: "Blog McBlogpants",
@@ -148,6 +308,7 @@ describe('API POST input parameters', () =>{
         const saved = await api
             .post('/api/blogs')
             .send(nullLikes)
+            .set(authHeaders)
             .expect(201)
             .expect('Content-Type', /application\/json/)
         
@@ -157,6 +318,17 @@ describe('API POST input parameters', () =>{
     })
 
     test('Title is required on POST', async () => {
+        const loginInfo = await api
+            .post('/api/login')
+            .send(testUserLoginInfo)
+            .expect(200)
+            .expect('Content-Type', /application\/json/)
+        const userToken = 'Bearer '+loginInfo.body.token
+        const authHeaders = {
+                Accept: 'application/json',
+                authorization: userToken
+            }
+
         const noTitle = {
             title: "",
             author: "Blog McBlogpants",
@@ -166,6 +338,7 @@ describe('API POST input parameters', () =>{
         const response = await api
             .post('/api/blogs')
             .send(noTitle)
+            .set(authHeaders)
             .expect(400)
             .expect('Content-Type', /application\/json/)
         assert(response.body.error, 'Response body should have error field')
@@ -176,6 +349,17 @@ describe('API POST input parameters', () =>{
     })
 
     test('author is required on POST', async () => {
+        const loginInfo = await api
+            .post('/api/login')
+            .send(testUserLoginInfo)
+            .expect(200)
+            .expect('Content-Type', /application\/json/)
+        const userToken = 'Bearer '+loginInfo.body.token
+        const authHeaders = {
+                Accept: 'application/json',
+                authorization: userToken
+            }
+
         const noAuthor = {
             title: "Blog McBlogpants gone missing - last seen by the keyboard",
             author: "",
@@ -185,6 +369,7 @@ describe('API POST input parameters', () =>{
         const response = await api
             .post('/api/blogs')
             .send(noAuthor)
+            .set(authHeaders)
             .expect(400)
             .expect('Content-Type', /application\/json/)
         assert(response.body.error, 'Response body should have error field')
@@ -195,6 +380,17 @@ describe('API POST input parameters', () =>{
     })
 
     test('Url is required on POST', async () => {
+        const loginInfo = await api
+            .post('/api/login')
+            .send(testUserLoginInfo)
+            .expect(200)
+            .expect('Content-Type', /application\/json/)
+        const userToken = 'Bearer '+loginInfo.body.token
+        const authHeaders = {
+                Accept: 'application/json',
+                authorization: userToken
+            }
+
         const noUrl = {
             title: "the beauty of the absent audience",
             author: "Blog McBlogpants",
@@ -204,6 +400,7 @@ describe('API POST input parameters', () =>{
         const response = await api
             .post('/api/blogs')
             .send(noUrl)
+            .set(authHeaders)
             .expect(400)
             .expect('Content-Type', /application\/json/)
         assert(response.body.error, 'Response body should have error field')
@@ -216,6 +413,17 @@ describe('API POST input parameters', () =>{
 
 describe('API DELETE and UPDATE', () =>{
     test('Blog can be deleted with its "id"', async () => {
+        const loginInfo = await api
+            .post('/api/login')
+            .send(testUserLoginInfo)
+            .expect(200)
+            .expect('Content-Type', /application\/json/)
+        const userToken = 'Bearer '+loginInfo.body.token
+        const authHeaders = {
+                Accept: 'application/json',
+                authorization: userToken
+            }
+
         const addToDelete = {
             title: "to the present and back to oblivion",
             author: "Blog McBlogpants",
@@ -226,6 +434,7 @@ describe('API DELETE and UPDATE', () =>{
         const responseFromPost = await api
             .post('/api/blogs')
             .send(addToDelete)
+            .set(authHeaders)
             .expect(201)
         
         const idToDelete = responseFromPost.body.id
@@ -236,6 +445,7 @@ describe('API DELETE and UPDATE', () =>{
 
         await api
             .delete(`/api/blogs/${idToDelete}`)
+            .set(authHeaders)
             .expect(204)
         
         const blogsAfterDelete = await api.get('/api/blogs');
@@ -243,6 +453,17 @@ describe('API DELETE and UPDATE', () =>{
     })
 
     test('Blog info can be updated with its "id"', async () => {
+        const loginInfo = await api
+            .post('/api/login')
+            .send(testUserLoginInfo)
+            .expect(200)
+            .expect('Content-Type', /application\/json/)
+        const userToken = 'Bearer '+loginInfo.body.token
+        const authHeaders = {
+                Accept: 'application/json',
+                authorization: userToken
+            }
+
         const toUpdate = {
             title: "TBA - update real title",
             author: "Secret writer",
@@ -253,6 +474,7 @@ describe('API DELETE and UPDATE', () =>{
         const responseFromPost = await api
             .post('/api/blogs')
             .send(toUpdate)
+            .set(authHeaders)
             .expect(201)
         
         const idToUpdate = responseFromPost.body.id
@@ -269,6 +491,7 @@ describe('API DELETE and UPDATE', () =>{
         await api
             .put(`/api/blogs/${idToUpdate}`)
             .send(updates)
+            .set(authHeaders)
             .expect(200)
             .expect('Content-Type', /application\/json/)
 
@@ -279,6 +502,7 @@ describe('API DELETE and UPDATE', () =>{
         assert.strictEqual(responseFromUpdate.body.id, idToUpdate)
     })
 })
+
 after(async () => {
   await mongoose.connection.close()
 })
