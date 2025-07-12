@@ -1,9 +1,6 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
-const user = require('../models/user')
-const User = require('../models/user')
-
-const jwt = require('jsonwebtoken')
+const userExtractor = require('../utils/middleware').userExtractor
 
 // GET ALL
 blogsRouter.get('/', async (request, response, next) => {
@@ -36,10 +33,9 @@ blogsRouter.get('/:id', async (request, response, next) => {
 })
 
 // ADD BLOG-POST to the DB
-blogsRouter.post('/', async (request, response, next) => {
+blogsRouter.post('/', userExtractor, async (request, response, next) => {
   
-  const decodedToken = jwt.verify(request.token, process.env.SECRET)
-  if (!decodedToken.id){
+  if (!request.user){
     return response.status(401).json({ error: 'token invalid' })
   }
   
@@ -50,7 +46,7 @@ blogsRouter.post('/', async (request, response, next) => {
     })
   }
 
-  const user = await User.findById(decodedToken.id)
+  const user = request.user
   const blog = new Blog ({
     title: body.title,
     author: body.author,
@@ -71,9 +67,9 @@ blogsRouter.post('/', async (request, response, next) => {
 })
 
 // DELETE a blog from db by id
-blogsRouter.delete('/:id', async (request, response, next) => {
-  const decodedToken = jwt.verify(request.token, process.env.SECRET)
-  if (!decodedToken.id){
+blogsRouter.delete('/:id', userExtractor, async (request, response, next) => {
+
+  if (!request.user){
     return response.status(401).json({ error: 'token invalid' })
   }
 
@@ -86,7 +82,7 @@ blogsRouter.delete('/:id', async (request, response, next) => {
     }
 
     const userid = blogToRemove.user.toString()
-    const tokenUserid = decodedToken.id.toString()
+    const tokenUserid = request.user.id.toString()
 
     if (userid === tokenUserid){
       await Blog.findByIdAndDelete(request.params.id)
@@ -100,9 +96,8 @@ blogsRouter.delete('/:id', async (request, response, next) => {
 })
 
 // UPDATE a blog's fields in db by id
-blogsRouter.put('/:id', async (request, response, next) => {
-  const decodedToken = jwt.verify(request.token, process.env.SECRET)
-  if (!decodedToken.id){
+blogsRouter.put('/:id', userExtractor, async (request, response, next) => {
+  if (!request.user){
     return response.status(401).json({ error: 'token invalid' })
   }
 
@@ -115,7 +110,7 @@ blogsRouter.put('/:id', async (request, response, next) => {
     }
 
     const userid = blogToUpdate.user.toString()
-    const tokenUserid = decodedToken.id.toString()
+    const tokenUserid = request.user.id.toString()
 
     if (userid !== tokenUserid){
       return response.status(401).json({ error: 'unauthrorized to update this blog' })
