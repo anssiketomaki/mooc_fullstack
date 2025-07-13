@@ -1,16 +1,24 @@
+import React, { useState } from 'react'
 import loginService from '../services/login'
 
-const Login = () => {
+const LoginView = (props) =>  {
 
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
 
-    const handleLogin = (event) =>{
+    const handleLogin = async (event) =>{
         event.preventDefault()
         console.log('logging in with', username, password)
 
         try {
-            const user = await loginservi
+            const user = await loginService.login({
+                username, password
+            })
+            props.onUserLogin(user)
+            setUsername('')
+            setPassword('')
+        }catch (exception){
+            props.onErrorMessage('wrong credentials')
         }
     }
 
@@ -41,4 +49,4 @@ const Login = () => {
     )
 }
 
-export default Login
+export default LoginView
