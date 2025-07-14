@@ -15,6 +15,9 @@ const LoginView = (props) =>  {
                 username, password
             })
             props.onUserLogin(user)
+            window.localStorage.setItem(
+                'loggedBlogappUser', JSON.stringify(user)
+            )
             setUsername('')
             setPassword('')
         }catch (exception){
