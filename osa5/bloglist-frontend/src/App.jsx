@@ -3,10 +3,12 @@ import LoginView from './components/LoginView'
 import LogoutView from './components/LogoutView'
 import BlogsView from './components/BlogsView'
 import blogsService from './services/blogs'
+import NewBlogView from './components/NewBlogView'
 
 const App = () => {
   
   const [user, setUser] = useState(null)
+  const [blogs, setBlogs] = useState([])
   const [errorMessage, setErrorMessage] = useState(null)
 
   useEffect (() => {
@@ -18,6 +20,14 @@ const App = () => {
     }
   }, [])
 
+  useEffect(() => {
+    if(user) {
+        blogsService.getAll().then(blogs =>
+        setBlogs( blogs )
+      )  
+    }
+  }, [user])
+
   const handleSetUser = (userObj) =>{
     setUser(userObj)
     blogsService.setToken(userObj.token)
@@ -26,6 +36,9 @@ const App = () => {
     setUser(null)
     window.localStorage.removeItem('loggedBlogappUser')
     blogsService.setToken(null)
+  }
+  const handleNewBlog = (newBlog) =>{
+    setBlogs(blogs.concat(newBlog))
   }
   const handleErrormessage = (e) => {
     setErrorMessage(e)
@@ -46,8 +59,16 @@ const App = () => {
       onUserLogout = {handleUserLogout}
     />
   )
+  const newBlogForm = () =>(
+    <NewBlogView
+      onNewBlog = {handleNewBlog}
+      onErrorMessage = {handleErrormessage}
+    />
+  )
   const blogsScene = () => (
-    <BlogsView />
+    <BlogsView 
+      blogs = {blogs}
+    />
   )
   
   return (
@@ -55,6 +76,8 @@ const App = () => {
       <h2>Blogs</h2>
       {!user && loginForm()}
       {user && logoutForm()}
+      <br/>
+      {user && newBlogForm()}
       <br/>
       {user && blogsScene()}
     </div>
