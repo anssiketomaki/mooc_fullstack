@@ -30,27 +30,34 @@ const NewBlogView = ({onNewBlog, onErrorMessage}) =>  {
 
             <form onSubmit={handleNewBlog}>
                 <div>
-                    title:
+
+                    <label htmlFor="title-inpput">title:</label>
                         <input 
                         type="text" 
                         value={title}
                         name="Title"
                         onChange = {({ target }) => setTitle(target.value)}
                         />
-                    author:
+                </div>
+                <div>
+                    <label htmlFor="author-input">author:</label>
                         <input 
                         type="text" 
                         value={author}
                         name="Author"
                         onChange = {({ target }) => setAuthor(target.value)}
                         />
-                    url:
+                </div>
+                <div>
+                    <label htmlFor="url-input">url:</label>
                         <input 
                         type="text" 
                         value={url}
                         name="url"
                         onChange={({ target }) => setUrl(target.value)}
                         />
+                </div>
+                <div>
                     <button type="submit">create</button>
                 </div>
             </form>
