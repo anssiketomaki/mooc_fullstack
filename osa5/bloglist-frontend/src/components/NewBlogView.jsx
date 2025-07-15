@@ -20,7 +20,7 @@ const NewBlogView = ({onNewBlog, onErrorMessage}) =>  {
             setAuthor('')
             setUrl('')
         }catch (exception){
-            onErrorMessage('wrong credentials')
+            onErrorMessage('Could not add new blog. Check that inputs are long enough!')
         }
     }
 
