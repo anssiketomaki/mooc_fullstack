@@ -4,11 +4,14 @@ import LogoutView from './components/LogoutView'
 import BlogsView from './components/BlogsView'
 import blogsService from './services/blogs'
 import NewBlogView from './components/NewBlogView'
+import Notification from './components/Notification'
+import ErrorMessage from './components/ErrorMessage'
 
 const App = () => {
   
   const [user, setUser] = useState(null)
   const [blogs, setBlogs] = useState([])
+  const [newNotification, setNewNotification] = useState(null)
   const [errorMessage, setErrorMessage] = useState(null)
 
   useEffect (() => {
@@ -39,6 +42,13 @@ const App = () => {
   }
   const handleNewBlog = (newBlog) =>{
     setBlogs(blogs.concat(newBlog))
+    handleNotification(`a new blog ${newBlog.title} by ${newBlog.author} added`)
+  }
+  const handleNotification = (notification) => {
+    setNewNotification(notification)
+    setTimeout(() =>{
+      setNewNotification(null)
+    }, 5000)
   }
   const handleErrormessage = (e) => {
     setErrorMessage(e)
@@ -70,10 +80,24 @@ const App = () => {
       blogs = {blogs}
     />
   )
+  const showNotification = () => (
+    <Notification
+      notification = {newNotification}
+    />
+  )
+  const showErrorMessage = () => (
+    <ErrorMessage
+      message = {errorMessage}
+    />
+  )
   
   return (
     <div>
       <h2>Blogs</h2>
+      {newNotification && showNotification()}
+      <br/>
+      {errorMessage && showErrorMessage()}
+      <br/>
       {!user && loginForm()}
       {user && logoutForm()}
       <br/>
